@@ -1,18 +1,52 @@
 from rest_framework import serializers
-from .models import Quiz, QuizQuestion
+from question.serializers import QuestionSerializer, QuestionSimpleSerializer
 from question.models import Question
+from .models import Quiz, QuizQuestion
 
 
 class QuizCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'is_random_question', 'is_random_choice']
+        fields = ['id', 'title', 'question_count', 'is_random_question', 'is_random_choice']
         read_only_fields = ['id']
+
+    def validate_question_count(self, value):
+        if self.instance:
+            related_question_count = self.instance.related_questions.count()
+            if value > related_question_count:
+                raise serializers.ValidationError(
+                    f"문제 수는 현재 연결된 문제 수({related_question_count} 개)를 초과할 수 없습니다."
+                )
+        return value
 
     def create(self, validated_data):
         request = self.context['request']
         validated_data['created_by'] = request.user
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # 변경 사항이 없는 경우: 저장 생략, 그대로 반환
+        changed = False
+        for attr, value in validated_data.items():
+            if getattr(instance, attr) != value:
+                setattr(instance, attr, value)
+                changed = True
+        if changed:
+            instance.save()
+        return instance
+
+class QuizStaffListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title']
+
+
+class QuizStaffDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Quiz
+        fields = ['id', 'title', 'question_cnt', 'is_random_question', 'is_random_choice']
 
 
 class QuizQuestionLinkSerializer(serializers.Serializer):

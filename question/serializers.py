@@ -27,3 +27,9 @@ class QuestionSerializer(serializers.ModelSerializer):
         for choice_data in choices_data:
             Choice.objects.create(question=question, **choice_data)
         return question
+
+
+class QuestionSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        fields = ['id', 'code', 'text']

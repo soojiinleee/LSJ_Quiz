@@ -37,6 +37,11 @@ def quiz_data(db, staff_user_data):
     return {"quiz1": quiz1, "quiz2": quiz2}
 
 @pytest.fixture
+def quiz_pagination_data(db):
+    """퀴즈 목록 페이지네이션 테스트"""
+    return QuizFactory.create_batch(120)
+
+@pytest.fixture
 def question_data(db):
     question1 = QuestionFactory.create(
         text="다음 중 설명이 맞는 것은?"
@@ -116,3 +121,14 @@ def quiz_question_data(db, quiz_data, question_data):
         "quiz1_question1": quiz1_question1,
         "quiz1_question2": quiz1_question2
     }
+
+@pytest.fixture
+def quiz_with_questions_batch_data(db):
+    """퀴즈 출제 문제 랜덤 배치 X"""
+    quiz = QuizFactory(question_count=30, is_random_question=False)
+    questions = QuestionFactory.create_batch(50)
+
+    for q in questions:
+        QuizQuestionFactory(quiz=quiz, question=q)
+
+    return quiz

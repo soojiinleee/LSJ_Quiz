@@ -26,6 +26,7 @@ class QuizFactory(factory.django.DjangoModelFactory):
     title = factory.Faker("sentence")
     is_random_question = False
     is_random_choice = False
+    question_count = factory.Faker("random_int")
 
     class Meta:
         model = Quiz
