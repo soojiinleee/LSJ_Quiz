@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'core',
     'quiz',
     'question',
+    'quiz_attempt',
 ]
 
 MIDDLEWARE = [

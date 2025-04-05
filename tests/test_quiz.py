@@ -201,7 +201,7 @@ class TestQuizQuestionLink:
 class TestQuizQuestionList:
 
     def test_quiz_question_list(self, api_client, user_data, quiz_with_questions_batch_data):
-        """퀴즈 출제 문제 목록 조회 및 페이지네이션 테스트"""
+        """퀴즈 문제 랜덤 출제 및 페이지네이션 테스트"""
 
         # given : 일반 유저 토큰 세팅
         user = User.objects.get(username='user1')
@@ -220,6 +220,31 @@ class TestQuizQuestionList:
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["count"] == quiz_with_questions_batch_data.question_count
         assert previous_page == "page=2"
+
+    def test_quiz_attempt_question_list(self, api_client, user_data, quiz_data, quiz_attempt_data, question_data, quiz_attempt_question_data):
+        """응시한 퀴즈의 문제 목록 조회 테스트"""
+
+        # given : 퀴즈 응시한 유저 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # when : 응시한 퀴즈로 문제 목록 API 호출
+        quiz_id = quiz_data["quiz3"].id
+        url = reverse('quiz-question', kwargs={'quiz_id': quiz_id})
+        response = api_client.get(url)
+
+        # then : 저장된 문제 id order_index 순으로 추출
+        attempt_questions = list(quiz_attempt_question_data.values())
+        ids = [aq.question.id for aq in sorted(attempt_questions, key=lambda x: x.order_index)]
+
+        # then : 응답값에서 문제 id 추출
+        response_data = response.json()
+        question_ids = [item['id'] for item in response_data['results']]
+
+        # then : 저장된 문제 목록 확인
+        assert response.status_code == status.HTTP_200_OK
+        assert  question_ids == ids
+
 
     # def test_quiz_question_random_order(self, api_client, user_data):
     #     # TODO 문제 랜덤 조회 확인 -> mock 데이터 생성 필요

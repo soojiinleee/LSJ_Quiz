@@ -9,10 +9,10 @@ class Quiz(TimeStampedMixin):
     question_count = models.PositiveIntegerField(default=0, verbose_name="퀴즈에 노출될 문제 개수")
     is_random_question = models.BooleanField(default=False, verbose_name="문제 랜덤 배치")
     is_random_choice = models.BooleanField(default=False, verbose_name="선택지 랜덤 배치")
-    created_by = models.ForeignKey(
+    creator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='quiz',
+        related_name='created_quiz',
         verbose_name="퀴즈 생성한 관리자"
     )
     questions = models.ManyToManyField(
@@ -20,6 +20,12 @@ class Quiz(TimeStampedMixin):
         through='quiz.QuizQuestion',
         blank=True,
         verbose_name='퀴즈 문제'
+    )
+    attempt_user = models.ManyToManyField(
+        User,
+        through='quiz_attempt.QuizAttempt',
+        related_name='attempted_quiz',
+        verbose_name="퀴즈 응시한 유저"
     )
 
     def __str__(self):

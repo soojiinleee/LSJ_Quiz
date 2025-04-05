@@ -1,11 +1,10 @@
 from django.db import models
 
-from core.models import TimeStampedMixin, generate_code
+from core.models import TimeStampedMixin
 
 
 class Question(TimeStampedMixin):
-    code = models.CharField(default=generate_code, editable=False, unique=True)
-    text = models.TextField()
+    text = models.TextField(null=False, blank=False, verbose_name="문제 설명")
 
     def __str__(self):
         return f"question_{self.id}: {self.text[:30]}"
@@ -22,7 +21,6 @@ class Choice(TimeStampedMixin):
         on_delete=models.CASCADE,
         related_name='choice'
     )
-    code = models.CharField(default=generate_code, editable=False, unique=True)
     text = models.TextField(null=False, blank=False,)
     is_correct = models.BooleanField(default=False)
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from question.serializers import QuestionSerializer, QuestionSimpleSerializer
+
 from question.models import Question
 from .models import Quiz, QuizQuestion
 
@@ -21,7 +21,7 @@ class QuizCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context['request']
-        validated_data['created_by'] = request.user
+        validated_data['creator'] = request.user
         return super().create(validated_data)
 
     def update(self, instance, validated_data):

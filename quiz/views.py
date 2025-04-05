@@ -1,11 +1,14 @@
 import random
-from rest_framework import viewsets, generics
+
+from rest_framework import viewsets, generics, mixins
 from rest_framework.response import Response
 from rest_framework import status
 
 from core.permissions import IsStaffUser
 from core.paginations import StandardResultsSetPagination
 from question.serializers import QuestionSimpleSerializer
+from quiz_attempt.models import QuizAttempt, QuizAttemptQuestion
+
 from .models import Quiz
 from .serializers import (
     QuizCreateUpdateSerializer,
@@ -58,6 +61,15 @@ class QuizQuestionListAPIView(generics.ListAPIView):
     def get_queryset(self):
         quiz_id = self.kwargs['quiz_id']
         quiz = Quiz.objects.get(pk=quiz_id)
+        user = self.request.user
+
+        # 1. 퀴즈 응시한 경우 -> 저장한 문제 순서
+        quiz_attempt = QuizAttempt.objects.filter(user_id=user.id, quiz_id=quiz_id).first()
+        if quiz_attempt:
+            attempt_questions = quiz_attempt.questions.select_related('question').order_by('order_index')
+            return [aq.question for aq in attempt_questions]
+
+        # 2. 퀴즈 응시하지 않은 경우 -> 랜덤 출제
         related_questions = list(quiz.related_questions.select_related('question').all())
         question_count = quiz.question_count
 
@@ -69,12 +81,4 @@ class QuizQuestionListAPIView(generics.ListAPIView):
             random.shuffle(selected_questions)
 
         # Question 객체로 변환
-        questions = [quiz_question.question for quiz_question in selected_questions]
-
-        return questions
-
-
-# TODO : 일반 사용자 (응시 CRUD)
-# class QuizUserViewSet(mixins.ListModelMixin,
-#                   mixins.RetrieveModelMixin,
-#                   viewsets.GenericViewSet):
+        return [quiz_question.question for quiz_question in selected_questions]

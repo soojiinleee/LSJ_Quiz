@@ -1,6 +1,4 @@
 from django.db import models
-import shortuuid
-
 
 class TimeStampedMixin(models.Model):
     """생성/수정 시간을 저장하는 Mixin"""
@@ -9,8 +7,3 @@ class TimeStampedMixin(models.Model):
 
     class Meta:
         abstract = True
-
-
-def generate_code():
-    """문제 및 선택지 코드 생성"""
-    return shortuuid.ShortUUID().random(length=7).upper()

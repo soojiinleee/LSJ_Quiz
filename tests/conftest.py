@@ -1,7 +1,10 @@
 import pytest
+
+from datetime import datetime
 from rest_framework.test import APIClient
 
-from .factories import UserFactory, QuizFactory, QuestionFactory, ChoiceFactory, QuizQuestionFactory
+from .factories import UserFactory, QuizFactory, QuestionFactory, ChoiceFactory, QuizQuestionFactory, \
+    QuizAttemptFactory, QuizAttemptQuestionFactory
 
 
 @pytest.fixture
@@ -19,22 +22,30 @@ def staff_user_data():
 def user_data():
     """일반 유저"""
     user1 = UserFactory.create(username="user1", email="user1@user.com", password="user1", is_staff=False)
+    user2 = UserFactory.create(username="user2", email="user2@user.com", password="user2", is_staff=False)
 
-    return {"user1": user1}
+    return {"user1": user1, "user2": user2}
 
 @pytest.fixture
 def quiz_data(db, staff_user_data):
     quiz1 = QuizFactory.create(
-        created_by=staff_user_data["staff1"],
+        creator=staff_user_data["staff1"],
         title="퀴즈1",
     )
     quiz2 = QuizFactory.create(
-        created_by=staff_user_data["staff1"],
+        creator=staff_user_data["staff1"],
         title="퀴즈2",
         is_random_question=True,
         is_random_choice=True
     )
-    return {"quiz1": quiz1, "quiz2": quiz2}
+    quiz3 = QuizFactory.create(
+        creator=staff_user_data["staff1"],
+        title="퀴즈3",
+        question_count=3,
+        is_random_question=True,
+        is_random_choice=True
+    )
+    return {"quiz1": quiz1, "quiz2": quiz2, "quiz3": quiz3}
 
 @pytest.fixture
 def quiz_pagination_data(db):
@@ -116,10 +127,25 @@ def quiz_question_data(db, quiz_data, question_data):
         quiz=quiz_data["quiz1"],
         question=question_data["question2"],
     )
+    quiz3_question1 = QuizQuestionFactory.create(
+        quiz=quiz_data["quiz3"],
+        question=question_data["question1"],
+    )
+    quiz3_question2 = QuizQuestionFactory.create(
+        quiz=quiz_data["quiz3"],
+        question=question_data["question2"],
+    )
+    quiz3_question3 = QuizQuestionFactory.create(
+        quiz=quiz_data["quiz3"],
+        question=question_data["question3"],
+    )
 
     return {
         "quiz1_question1": quiz1_question1,
-        "quiz1_question2": quiz1_question2
+        "quiz1_question2": quiz1_question2,
+        "quiz3_question1": quiz3_question1,
+        "quiz3_question2": quiz3_question2,
+        "quiz3_question3": quiz3_question3,
     }
 
 @pytest.fixture
@@ -132,3 +158,39 @@ def quiz_with_questions_batch_data(db):
         QuizQuestionFactory(quiz=quiz, question=q)
 
     return quiz
+
+@pytest.fixture()
+def quiz_attempt_data(db, user_data, quiz_data):
+    attempt1 = QuizAttemptFactory.create(
+        user=user_data["user2"],
+        quiz=quiz_data["quiz3"],
+        attempt_question_count = quiz_data["quiz3"].question_count,
+        started_at= datetime.now(),
+        submitted_at=None
+    )
+
+    return {"attempt1": attempt1}
+
+@pytest.fixture()
+def quiz_attempt_question_data(db, quiz_attempt_data, question_data):
+    attempt1_question2 = QuizAttemptQuestionFactory.create(
+        attempt=quiz_attempt_data["attempt1"],
+        question=question_data["question2"],
+        order_index=1,
+    )
+    attempt1_question1 = QuizAttemptQuestionFactory.create(
+        attempt=quiz_attempt_data["attempt1"],
+        question=question_data["question1"],
+        order_index=2,
+    )
+    attempt1_question3 = QuizAttemptQuestionFactory.create(
+        attempt=quiz_attempt_data["attempt1"],
+        question=question_data["question3"],
+        order_index=3,
+    )
+
+    return {
+        "attempt1_question2": attempt1_question2,
+        "attempt1_question1": attempt1_question1,
+        "attempt1_question3": attempt1_question3,
+    }

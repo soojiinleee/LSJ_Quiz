@@ -5,7 +5,7 @@ from .models import Question, Choice
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = ['id', 'code', 'text', 'is_correct']
+        fields = ['id', 'text', 'is_correct']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -13,7 +13,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ['id', 'code', 'text', 'choice']
+        fields = ['id', 'text', 'choice']
 
     def validate_choice(self, value):
         correct_count = sum([1 for c in value if c.get('is_correct')])
@@ -32,4 +32,4 @@ class QuestionSerializer(serializers.ModelSerializer):
 class QuestionSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ['id', 'code', 'text']
+        fields = ['id', 'text']

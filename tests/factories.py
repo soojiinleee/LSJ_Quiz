@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 from question.models import Question, Choice
 from quiz.models import Quiz, QuizQuestion
+from quiz_attempt.models import QuizAttempt, QuizAttemptQuestion
 
 fake = faker.Faker("ko_KR")
 
@@ -22,7 +23,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 class QuizFactory(factory.django.DjangoModelFactory):
     """퀴즈 Factory"""
 
-    created_by = factory.SubFactory(UserFactory)
+    creator = factory.SubFactory(UserFactory)
     title = factory.Faker("sentence")
     is_random_question = False
     is_random_choice = False
@@ -57,3 +58,25 @@ class QuizQuestionFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = QuizQuestion
+
+
+class QuizAttemptFactory(factory.django.DjangoModelFactory):
+    """응시한 퀴즈 Factory"""
+    quiz = factory.SubFactory(QuizFactory)
+    user = factory.SubFactory(UserFactory)
+    attempt_question_count= factory.Faker('random_int')
+    started_at = factory.Faker('date_time')
+    submitted_at = factory.Faker('date_time')
+
+    class Meta:
+        model = QuizAttempt
+
+
+class QuizAttemptQuestionFactory(factory.django.DjangoModelFactory):
+    """퀴즈 출제 문제"""
+    attempt = factory.SubFactory(QuizAttemptFactory)
+    question = factory.SubFactory(QuestionFactory)
+    order_index = factory.Faker('random_int')
+
+    class Meta:
+        model = QuizAttemptQuestion
