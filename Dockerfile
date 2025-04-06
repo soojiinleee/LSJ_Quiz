@@ -9,7 +9,6 @@ RUN apt-get update \
   && poetry config virtualenvs.create false \
   && rm -rf /var/lib/apt/lists/*
 
-# 환경 변수로 poetry PATH 설정 (예방 차원)
 ENV PATH="${PATH}:/root/.local/bin"
 
 # pyproject.toml 복사 및 패키지 설치
@@ -22,5 +21,6 @@ COPY . /app/
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+
 
