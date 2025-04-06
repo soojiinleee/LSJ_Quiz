@@ -10,54 +10,139 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('question', '0001_initial'),
-        ('quiz', '0001_initial'),
+        ("question", "0001_initial"),
+        ("quiz", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='QuizAttempt',
+            name="QuizAttempt",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('attempt_code', models.CharField(default='HJQCC', max_length=7, unique=True, verbose_name='퀴즈 응시 코드')),
-                ('attempt_question_count', models.PositiveIntegerField(default=0, verbose_name='퀴즈 응시 시점의 출제 문제 수')),
-                ('correct_count', models.PositiveIntegerField(blank=True, null=True, verbose_name='맞은 문제 개수')),
-                ('started_at', models.DateTimeField(auto_now_add=True, verbose_name='퀴즈 응시 일시')),
-                ('submitted_at', models.DateTimeField(blank=True, null=True, verbose_name='퀴즈 제출 일시')),
-                ('quiz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attempts', to='quiz.quiz')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='quiz_attempts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "attempt_code",
+                    models.CharField(
+                        default="HJQCC",
+                        max_length=7,
+                        unique=True,
+                        verbose_name="퀴즈 응시 코드",
+                    ),
+                ),
+                (
+                    "attempt_question_count",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="퀴즈 응시 시점의 출제 문제 수"
+                    ),
+                ),
+                (
+                    "correct_count",
+                    models.PositiveIntegerField(
+                        blank=True, null=True, verbose_name="맞은 문제 개수"
+                    ),
+                ),
+                (
+                    "started_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="퀴즈 응시 일시"
+                    ),
+                ),
+                (
+                    "submitted_at",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="퀴즈 제출 일시"
+                    ),
+                ),
+                (
+                    "quiz",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attempts",
+                        to="quiz.quiz",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="quiz_attempts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '퀴즈 응시',
-                'verbose_name_plural': '퀴즈 응시',
-                'db_table': 'quiz_attempt',
+                "verbose_name": "퀴즈 응시",
+                "verbose_name_plural": "퀴즈 응시",
+                "db_table": "quiz_attempt",
             },
         ),
         migrations.CreateModel(
-            name='QuizAttemptQuestion',
+            name="QuizAttemptQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('order_index', models.PositiveIntegerField(verbose_name='응시 시점의 문제 순서')),
-                ('attempt', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='quiz_attempt.quizattempt')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attempt_questions', to='question.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                (
+                    "order_index",
+                    models.PositiveIntegerField(verbose_name="응시 시점의 문제 순서"),
+                ),
+                (
+                    "attempt",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="questions",
+                        to="quiz_attempt.quizattempt",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attempt_questions",
+                        to="question.question",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '퀴즈 응시 문제',
-                'verbose_name_plural': '퀴즈 응시 문제',
-                'db_table': 'quiz_attempt_question',
-                'unique_together': {('attempt', 'question')},
+                "verbose_name": "퀴즈 응시 문제",
+                "verbose_name_plural": "퀴즈 응시 문제",
+                "db_table": "quiz_attempt_question",
+                "unique_together": {("attempt", "question")},
             },
         ),
         migrations.AddField(
-            model_name='quizattempt',
-            name='question',
-            field=models.ManyToManyField(through='quiz_attempt.QuizAttemptQuestion', to='question.question', verbose_name='응시한 퀴즈에 출제된 문제'),
+            model_name="quizattempt",
+            name="question",
+            field=models.ManyToManyField(
+                through="quiz_attempt.QuizAttemptQuestion",
+                to="question.question",
+                verbose_name="응시한 퀴즈에 출제된 문제",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='quizattempt',
-            unique_together={('user', 'quiz')},
+            name="quizattempt",
+            unique_together={("user", "quiz")},
         ),
     ]

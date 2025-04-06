@@ -9,14 +9,16 @@ from .models import Quiz, QuizQuestion
 class QuizIdTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'title']
-        read_only_fields = ['id']
+        fields = ["id", "title"]
+        read_only_fields = ["id"]
 
 
 class BaseQuizSerializer(QuizIdTitleSerializer):
     class Meta(QuizIdTitleSerializer.Meta):
         fields = QuizIdTitleSerializer.Meta.fields + [
-            'question_count', 'is_random_question', 'is_random_choice'
+            "question_count",
+            "is_random_question",
+            "is_random_choice",
         ]
 
 
@@ -31,8 +33,8 @@ class QuizCreateUpdateSerializer(BaseQuizSerializer):
         return value
 
     def create(self, validated_data):
-        request = self.context['request']
-        validated_data['creator'] = request.user
+        request = self.context["request"]
+        validated_data["creator"] = request.user
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -59,37 +61,39 @@ class QuizUserSerializer(QuizIdTitleSerializer):
     has_attempted = serializers.SerializerMethodField()
 
     class Meta(QuizIdTitleSerializer.Meta):
-        fields = QuizIdTitleSerializer.Meta.fields + ['has_attempted']
+        fields = QuizIdTitleSerializer.Meta.fields + ["has_attempted"]
 
     def get_has_attempted(self, obj):
-        user = self.context['request'].user
+        user = self.context["request"].user
         return QuizAttempt.objects.filter(quiz=obj, user=user).exists()
 
 
 class QuizQuestionLinkSerializer(serializers.Serializer):
     question_ids = serializers.ListField(
-        child=serializers.IntegerField(),
-        allow_empty=False,
-        write_only=True
+        child=serializers.IntegerField(), allow_empty=False, write_only=True
     )
 
     def validate_question_ids(self, value):
         questions = Question.objects.filter(id__in=value)
         if questions.count() != len(set(value)):
-            raise serializers.ValidationError("존재하지 않는 문제 ID가 포함되어 있습니다.")
+            raise serializers.ValidationError(
+                "존재하지 않는 문제 ID가 포함되어 있습니다."
+            )
         return value
 
     def create(self, validated_data):
-        quiz_id = self.context['quiz_id']
+        quiz_id = self.context["quiz_id"]
         quiz = Quiz.objects.get(pk=quiz_id)
 
-        question_ids = validated_data['question_ids']
+        question_ids = validated_data["question_ids"]
         questions = Question.objects.filter(id__in=question_ids)
 
         linked_questions = []
 
         for question in questions:
-            obj, created = QuizQuestion.objects.get_or_create(quiz=quiz, question=question)
+            obj, created = QuizQuestion.objects.get_or_create(
+                quiz=quiz, question=question
+            )
 
             if not created:
                 raise serializers.ValidationError("이미 퀴즈와 연결된 문제입니다.")

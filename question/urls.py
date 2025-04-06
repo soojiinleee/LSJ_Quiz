@@ -3,8 +3,8 @@ from .views import QuestionViewSet
 from django.urls import path, include
 
 router = DefaultRouter()
-router.register(r'', QuestionViewSet, basename='questions')
+router.register(r"", QuestionViewSet, basename="questions")
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path("", include(router.urls)),
 ]

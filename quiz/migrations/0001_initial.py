@@ -7,38 +7,76 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Quiz',
+            name="Quiz",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('title', models.CharField(max_length=255, verbose_name='퀴즈 내용')),
-                ('question_count', models.PositiveIntegerField(default=0, verbose_name='퀴즈에 노출될 문제 개수')),
-                ('is_random_question', models.BooleanField(default=False, verbose_name='문제 랜덤 배치')),
-                ('is_random_choice', models.BooleanField(default=False, verbose_name='선택지 랜덤 배치')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                ("title", models.CharField(max_length=255, verbose_name="퀴즈 내용")),
+                (
+                    "question_count",
+                    models.PositiveIntegerField(
+                        default=0, verbose_name="퀴즈에 노출될 문제 개수"
+                    ),
+                ),
+                (
+                    "is_random_question",
+                    models.BooleanField(default=False, verbose_name="문제 랜덤 배치"),
+                ),
+                (
+                    "is_random_choice",
+                    models.BooleanField(default=False, verbose_name="선택지 랜덤 배치"),
+                ),
             ],
             options={
-                'verbose_name': '퀴즈',
-                'verbose_name_plural': '퀴즈',
-                'db_table': 'quiz',
+                "verbose_name": "퀴즈",
+                "verbose_name_plural": "퀴즈",
+                "db_table": "quiz",
             },
         ),
         migrations.CreateModel(
-            name='QuizQuestion',
+            name="QuizQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
             ],
             options={
-                'verbose_name': '퀴즈-문제',
-                'verbose_name_plural': '퀴즈-문제',
-                'db_table': 'quiz_question',
+                "verbose_name": "퀴즈-문제",
+                "verbose_name_plural": "퀴즈-문제",
+                "db_table": "quiz_question",
             },
         ),
     ]

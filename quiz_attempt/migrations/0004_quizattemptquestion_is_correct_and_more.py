@@ -6,18 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('quiz_attempt', '0003_alter_quizattemptquestion_options_and_more'),
+        ("quiz_attempt", "0003_alter_quizattemptquestion_options_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quizattemptquestion',
-            name='is_correct',
-            field=models.BooleanField(default=False, verbose_name='정답 여부'),
+            model_name="quizattemptquestion",
+            name="is_correct",
+            field=models.BooleanField(default=False, verbose_name="정답 여부"),
         ),
         migrations.AlterField(
-            model_name='quizattempt',
-            name='attempt_code',
-            field=models.CharField(default='WUCUT', max_length=7, unique=True, verbose_name='퀴즈 응시 코드'),
+            model_name="quizattempt",
+            name="attempt_code",
+            field=models.CharField(
+                default="WUCUT",
+                max_length=7,
+                unique=True,
+                verbose_name="퀴즈 응시 코드",
+            ),
         ),
     ]

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('quiz', '0002_initial'),
+        ("quiz", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quiz',
-            name='deleted_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='삭제 시점'),
+            model_name="quiz",
+            name="deleted_at",
+            field=models.DateTimeField(blank=True, null=True, verbose_name="삭제 시점"),
         ),
         migrations.AddField(
-            model_name='quiz',
-            name='is_deleted',
-            field=models.BooleanField(default=False, verbose_name='삭제 여부'),
+            model_name="quiz",
+            name="is_deleted",
+            field=models.BooleanField(default=False, verbose_name="삭제 여부"),
         ),
     ]

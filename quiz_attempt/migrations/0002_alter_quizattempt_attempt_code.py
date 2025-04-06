@@ -6,13 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('quiz_attempt', '0001_initial'),
+        ("quiz_attempt", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='quizattempt',
-            name='attempt_code',
-            field=models.CharField(default='6GJJD', max_length=7, unique=True, verbose_name='퀴즈 응시 코드'),
+            model_name="quizattempt",
+            name="attempt_code",
+            field=models.CharField(
+                default="6GJJD",
+                max_length=7,
+                unique=True,
+                verbose_name="퀴즈 응시 코드",
+            ),
         ),
     ]

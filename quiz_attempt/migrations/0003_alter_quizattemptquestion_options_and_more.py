@@ -7,36 +7,79 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('question', '0001_initial'),
-        ('quiz_attempt', '0002_alter_quizattempt_attempt_code'),
+        ("question", "0001_initial"),
+        ("quiz_attempt", "0002_alter_quizattempt_attempt_code"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='quizattemptquestion',
-            options={'verbose_name': '퀴즈 출제 문제', 'verbose_name_plural': '퀴즈 출제 문제'},
+            name="quizattemptquestion",
+            options={
+                "verbose_name": "퀴즈 출제 문제",
+                "verbose_name_plural": "퀴즈 출제 문제",
+            },
         ),
         migrations.AlterField(
-            model_name='quizattempt',
-            name='attempt_code',
-            field=models.CharField(default='25TWF', max_length=7, unique=True, verbose_name='퀴즈 응시 코드'),
+            model_name="quizattempt",
+            name="attempt_code",
+            field=models.CharField(
+                default="25TWF",
+                max_length=7,
+                unique=True,
+                verbose_name="퀴즈 응시 코드",
+            ),
         ),
         migrations.CreateModel(
-            name='QuizAttemptChoice',
+            name="QuizAttemptChoice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='생성일')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='수정일')),
-                ('order_index', models.PositiveIntegerField(verbose_name='선택지 순서')),
-                ('is_selected', models.BooleanField(default=False, verbose_name='유저 선택 여부')),
-                ('attempt_question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='choices', to='quiz_attempt.quizattemptquestion', verbose_name='응시 문제')),
-                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='question.choice', verbose_name='선택지')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(auto_now_add=True, verbose_name="생성일"),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="수정일"),
+                ),
+                (
+                    "order_index",
+                    models.PositiveIntegerField(verbose_name="선택지 순서"),
+                ),
+                (
+                    "is_selected",
+                    models.BooleanField(default=False, verbose_name="유저 선택 여부"),
+                ),
+                (
+                    "attempt_question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="choices",
+                        to="quiz_attempt.quizattemptquestion",
+                        verbose_name="응시 문제",
+                    ),
+                ),
+                (
+                    "choice",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="question.choice",
+                        verbose_name="선택지",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': '퀴즈 응시 선택지',
-                'verbose_name_plural': '퀴즈 응시 선택지',
-                'db_table': 'quiz_attempt_choice',
-                'unique_together': {('attempt_question', 'choice')},
+                "verbose_name": "퀴즈 응시 선택지",
+                "verbose_name_plural": "퀴즈 응시 선택지",
+                "db_table": "quiz_attempt_choice",
+                "unique_together": {("attempt_question", "choice")},
             },
         ),
     ]

@@ -35,7 +35,8 @@ class QuizFactory(factory.django.DjangoModelFactory):
 
 class QuestionFactory(factory.django.DjangoModelFactory):
     """문제 Factory"""
-    text = factory.Faker('sentence')
+
+    text = factory.Faker("sentence")
 
     class Meta:
         model = Question
@@ -43,8 +44,9 @@ class QuestionFactory(factory.django.DjangoModelFactory):
 
 class ChoiceFactory(factory.django.DjangoModelFactory):
     """문제-선택지 Factory"""
+
     question = factory.SubFactory(QuestionFactory)
-    text = factory.Faker('word')
+    text = factory.Faker("word")
     is_correct = False
 
     class Meta:
@@ -53,6 +55,7 @@ class ChoiceFactory(factory.django.DjangoModelFactory):
 
 class QuizQuestionFactory(factory.django.DjangoModelFactory):
     """퀴즈-문제 연결 Factory"""
+
     quiz = factory.SubFactory(QuizFactory)
     question = factory.SubFactory(QuestionFactory)
 
@@ -62,11 +65,12 @@ class QuizQuestionFactory(factory.django.DjangoModelFactory):
 
 class QuizAttemptFactory(factory.django.DjangoModelFactory):
     """응시한 퀴즈 Factory"""
+
     quiz = factory.SubFactory(QuizFactory)
     user = factory.SubFactory(UserFactory)
-    attempt_question_count= factory.Faker('random_int')
-    started_at = factory.Faker('date_time')
-    submitted_at = factory.Faker('date_time')
+    attempt_question_count = factory.Faker("random_int")
+    started_at = factory.Faker("date_time")
+    submitted_at = factory.Faker("date_time")
 
     class Meta:
         model = QuizAttempt
@@ -74,9 +78,10 @@ class QuizAttemptFactory(factory.django.DjangoModelFactory):
 
 class QuizAttemptQuestionFactory(factory.django.DjangoModelFactory):
     """퀴즈 출제 문제"""
+
     attempt = factory.SubFactory(QuizAttemptFactory)
     question = factory.SubFactory(QuestionFactory)
-    order_index = factory.Faker('random_int')
+    order_index = factory.Faker("random_int")
 
     class Meta:
         model = QuizAttemptQuestion
@@ -87,7 +92,7 @@ class QuizAttemptChoiceFactory(factory.django.DjangoModelFactory):
 
     attempt_question = factory.SubFactory(QuizAttemptQuestionFactory)
     choice = factory.SubFactory(ChoiceFactory)
-    order_index = factory.Faker('random_int')
+    order_index = factory.Faker("random_int")
     is_selected = False
 
     class Meta:

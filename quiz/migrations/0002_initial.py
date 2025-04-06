@@ -10,40 +10,63 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('question', '0001_initial'),
-        ('quiz', '0001_initial'),
-        ('quiz_attempt', '0001_initial'),
+        ("question", "0001_initial"),
+        ("quiz", "0001_initial"),
+        ("quiz_attempt", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quiz',
-            name='attempt_user',
-            field=models.ManyToManyField(related_name='attempted_quiz', through='quiz_attempt.QuizAttempt', to=settings.AUTH_USER_MODEL, verbose_name='퀴즈 응시한 유저'),
+            model_name="quiz",
+            name="attempt_user",
+            field=models.ManyToManyField(
+                related_name="attempted_quiz",
+                through="quiz_attempt.QuizAttempt",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="퀴즈 응시한 유저",
+            ),
         ),
         migrations.AddField(
-            model_name='quiz',
-            name='creator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='created_quiz', to=settings.AUTH_USER_MODEL, verbose_name='퀴즈 생성한 관리자'),
+            model_name="quiz",
+            name="creator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="created_quiz",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="퀴즈 생성한 관리자",
+            ),
         ),
         migrations.AddField(
-            model_name='quizquestion',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_quizzes', to='question.question'),
+            model_name="quizquestion",
+            name="question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="related_quizzes",
+                to="question.question",
+            ),
         ),
         migrations.AddField(
-            model_name='quizquestion',
-            name='quiz',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_questions', to='quiz.quiz'),
+            model_name="quizquestion",
+            name="quiz",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="related_questions",
+                to="quiz.quiz",
+            ),
         ),
         migrations.AddField(
-            model_name='quiz',
-            name='questions',
-            field=models.ManyToManyField(blank=True, through='quiz.QuizQuestion', to='question.question', verbose_name='퀴즈 문제'),
+            model_name="quiz",
+            name="questions",
+            field=models.ManyToManyField(
+                blank=True,
+                through="quiz.QuizQuestion",
+                to="question.question",
+                verbose_name="퀴즈 문제",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='quizquestion',
-            unique_together={('quiz', 'question')},
+            name="quizquestion",
+            unique_together={("quiz", "question")},
         ),
     ]

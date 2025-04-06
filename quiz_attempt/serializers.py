@@ -15,12 +15,19 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = QuizAttempt
-        fields = ['id', 'quiz_id', 'user_id', 'attempt_code', 'question_ids', 'attempt_question_count']
-        read_only_fields = ['id', 'user_id', 'attempt_code', 'attempt_question_count']
+        fields = [
+            "id",
+            "quiz_id",
+            "user_id",
+            "attempt_code",
+            "question_ids",
+            "attempt_question_count",
+        ]
+        read_only_fields = ["id", "user_id", "attempt_code", "attempt_question_count"]
 
     def validate(self, attrs):
-        quiz_id = attrs.get('quiz_id')
-        user = self.context['request'].user
+        quiz_id = attrs.get("quiz_id")
+        user = self.context["request"].user
 
         # 1. 퀴즈 확인
         try:
@@ -38,26 +45,22 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        quiz_id = validated_data.pop('quiz_id')
-        question_ids = validated_data.pop('question_ids')
-        user = self.context['request'].user
+        quiz_id = validated_data.pop("quiz_id")
+        question_ids = validated_data.pop("question_ids")
+        user = self.context["request"].user
 
         quiz = get_object_or_404(Quiz, id=quiz_id)
         questions = Question.objects.filter(id__in=question_ids)
 
         # 응시 객체 생성
         attempt = QuizAttempt.objects.create(
-            quiz=quiz,
-            user=user,
-            attempt_question_count=quiz.question_count
+            quiz=quiz, user=user, attempt_question_count=quiz.question_count
         )
 
         # 출제된 문제 저장 (순서 보존)
         for idx, question in enumerate(questions):
             QuizAttemptQuestion.objects.create(
-                attempt=attempt,
-                question=question,
-                order_index=idx + 1
+                attempt=attempt, question=question, order_index=idx + 1
             )
 
         return attempt
@@ -66,15 +69,18 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
 class QuizAttemptChoiceCreateSerializer(serializers.Serializer):
     quiz_id = serializers.IntegerField(write_only=True)
     question_id = serializers.IntegerField(write_only=True)
-    choice_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
-
+    choice_ids = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True
+    )
 
     def validate(self, attrs):
-        question_id = attrs['question_id']
-        choice_ids = attrs['choice_ids']
+        question_id = attrs["question_id"]
+        choice_ids = attrs["choice_ids"]
 
         # 문제에 포함된 선택지 여부 확인
-        valid_ids = list(Choice.objects.filter(question_id=question_id).values_list('id', flat=True))
+        valid_ids = list(
+            Choice.objects.filter(question_id=question_id).values_list("id", flat=True)
+        )
         invalid_ids = set(choice_ids) - set(valid_ids)
         if invalid_ids:
             raise serializers.ValidationError(f"유효하지 않은 choice id: {invalid_ids}")
@@ -82,24 +88,26 @@ class QuizAttemptChoiceCreateSerializer(serializers.Serializer):
         return attrs
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        quiz_id = validated_data.pop('quiz_id')
-        question_id = validated_data.pop('question_id')
-        choice_ids = validated_data.pop('choice_ids')
+        user = self.context["request"].user
+        quiz_id = validated_data.pop("quiz_id")
+        question_id = validated_data.pop("question_id")
+        choice_ids = validated_data.pop("choice_ids")
 
         quiz_attempt = get_object_or_404(QuizAttempt, user=user, quiz_id=quiz_id)
         attempt_question = quiz_attempt.questions.get(question_id=question_id)
 
-        quiz_attempt_choice = QuizAttemptChoice.objects.filter(attempt_question=attempt_question)
+        quiz_attempt_choice = QuizAttemptChoice.objects.filter(
+            attempt_question=attempt_question
+        )
         if quiz_attempt_choice:
             return quiz_attempt_choice
 
         # 선택지 순서 저장
-        saved_choice=[
+        saved_choice = [
             QuizAttemptChoice(
                 attempt_question=attempt_question,
                 choice_id=choice_id,
-                order_index=idx + 1
+                order_index=idx + 1,
             )
             for idx, choice_id in enumerate(choice_ids)
         ]
@@ -121,8 +129,8 @@ class QuizAttemptChoiceUpdateSerializer(serializers.Serializer):
 class QuizSubmissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizAttempt
-        fields = ['id', 'correct_count', 'submitted_at']
-        read_only_fields = ['id', 'correct_count', 'submitted_at']
+        fields = ["id", "correct_count", "submitted_at"]
+        read_only_fields = ["id", "correct_count", "submitted_at"]
 
     def update(self, instance: QuizAttempt, validated_data):
         if instance.submitted_at:
