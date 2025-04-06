@@ -6,7 +6,7 @@ from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
 from question.models import Choice
-from quiz_attempt.models import QuizAttempt, QuizAttemptChoice
+from quiz_attempt.models import QuizAttempt, QuizAttemptChoice, QuizAttemptQuestion
 
 
 @pytest.mark.django_db
@@ -207,3 +207,34 @@ class TestQuizAttemptChoice:
         assert response.status_code == status.HTTP_200_OK
         assert previous_selected_choice.is_selected is True
         assert new_selected_choice.is_selected is False
+
+    def test_quiz_submission(self, api_client, user_data,
+                             quiz_data, question_data, choice_data,quiz_attempt_data,
+                             quiz_attempt_question_data, quiz_attempt_choice_data):
+        """퀴즈 제출 테스트"""
+
+        # given : 일반 유저 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # given : 응시한 퀴즈 id
+        quiz_id = quiz_data['quiz3'].id
+
+        # when: 퀴즈 제출 API 호출
+        url = reverse('quiz-submission')
+        response = api_client.put(f"{url}?quiz_id={quiz_id}")
+
+        # then : 퀴즈 제출 결과 조회 : 맞은 개수
+        response_data = response.json()
+        assert response.status_code == status.HTTP_200_OK
+        assert response_data['submitted_at'] is not None
+        assert response_data['correct_count'] == 1
+
+        # then : 풀이 문제 정답 여부 업데이트
+        corrected_question = QuizAttemptQuestion.objects.get(
+            attempt=quiz_attempt_data["attempt1"],
+            question=question_data["question2"]
+        )
+        assert corrected_question.is_correct is True
+
+

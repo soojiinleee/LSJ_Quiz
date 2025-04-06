@@ -1,12 +1,15 @@
-from rest_framework import generics, permissions, mixins, viewsets, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 
 from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 from question.serializers import QuestionDetailWithChoicesSerializer
-from .serializers import QuizAttemptCreateSerializer, QuizAttemptChoiceCreateSerializer, QuizAttemptChoiceUpdateSerializer
-from .models import QuizAttempt, QuizAttemptChoice
+from .serializers import (
+    QuizAttemptCreateSerializer, QuizAttemptChoiceCreateSerializer,
+    QuizAttemptChoiceUpdateSerializer, QuizSubmissionSerializer
+)
+from .models import QuizAttempt
 
 
 class QuizAttemptAPIView(generics.CreateAPIView):
@@ -81,3 +84,24 @@ class QuizAttemptChoiceAPIView(generics.CreateAPIView,
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class QuizSubmissionAPIView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        quiz_id = request.query_params.get('quiz_id')
+
+        if not quiz_id:
+            return Response({'detail': 'quiz_id가 필요합니다.'}, status=400)
+
+        # 유저가 해당 퀴즈에 이미 응시한 기록 가져오기
+        quiz_attempt = get_object_or_404(QuizAttempt, user=user, quiz_id=quiz_id)
+
+        # 제출 처리 (submitted_at, 정답 여부 등)
+        serializer = QuizSubmissionSerializer(quiz_attempt, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data, status=200)

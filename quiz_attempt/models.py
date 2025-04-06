@@ -63,6 +63,7 @@ class QuizAttemptQuestion(TimeStampedMixin):
         related_name='attempt_questions'
     )
     order_index = models.PositiveIntegerField(verbose_name='응시 시점의 문제 순서')
+    is_correct = models.BooleanField(default=False, verbose_name='정답 여부')
 
     def __str__(self):
         return f"Attempt {self.attempt_id} - Q{self.question.id}"
