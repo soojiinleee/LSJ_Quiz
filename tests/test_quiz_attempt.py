@@ -1,5 +1,3 @@
-from random import choice
-
 import pytest
 
 from rest_framework import status

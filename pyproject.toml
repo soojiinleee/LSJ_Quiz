@@ -21,6 +21,10 @@ dependencies = [
 [tool.poetry]
 packages = [{include = "lsj_quiz", from = "src"}]
 
+[tool.black]
+line-length = 88
+target-version = ['py311']
+skip-string-normalization = true
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"

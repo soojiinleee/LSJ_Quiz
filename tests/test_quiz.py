@@ -24,8 +24,8 @@ class TestCreateQuiz:
         # then : 퀴즈 생성 확인
         assert response.status_code == status.HTTP_201_CREATED
         assert response.json()["title"] == "test_quiz"
-        assert response.json()["is_random_question"] == False
-        assert response.json()["is_random_choice"] == False
+        assert response.json()["is_random_question"] is False
+        assert response.json()["is_random_choice"] is False
 
     def test_create_quiz_by_user(self, api_client, user_data):
         """퀴즈 생성 permission 테스트"""
@@ -101,8 +101,8 @@ class TestUpdateQuiz:
 
         # then : 퀴즈에 출제할 문제 및 선택지 랜덤 정렬 설정 성공
         assert response.status_code == status.HTTP_200_OK
-        assert response.json()["is_random_question"] == True
-        assert response.json()["is_random_choice"] == True
+        assert response.json()["is_random_question"] is True
+        assert response.json()["is_random_choice"] is True
 
 
 @pytest.mark.django_db
@@ -222,7 +222,7 @@ class TestReadQuiz:
         # then : 퀴즈 응시 이력 필드 포함
         response_data = response.json()
         assert response.status_code == status.HTTP_200_OK
-        assert response_data["has_attempted"] == True
+        assert response_data["has_attempted"] is True
 
     def test_exclude_deleted_quiz_from_list(
         self, api_client, staff_user_data, quiz_data

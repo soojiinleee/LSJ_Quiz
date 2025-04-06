@@ -2,7 +2,7 @@ import random
 
 from rest_framework import serializers
 
-from quiz_attempt.models import QuizAttemptQuestion, QuizAttempt
+from quiz_attempt.models import QuizAttempt
 from .models import Question, Choice
 
 
