@@ -1,14 +1,16 @@
 import pytest
+from datetime import datetime
 from urllib.parse import urlparse
 from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
+from quiz.models import Quiz
 
 
 @pytest.mark.django_db
-class TestCreateUpdateQuiz:
+class TestCreateQuiz:
     def test_create_quiz_by_staff(self, api_client, staff_user_data):
-        """관리자 퀴즈 생성 테스트"""
+        """퀴즈 생성 테스트"""
 
         # given : 관리자 토큰 세팅
         staff = User.objects.get(username='staff1')
@@ -26,7 +28,7 @@ class TestCreateUpdateQuiz:
         assert response.json()['is_random_choice'] == False
 
     def test_create_quiz_by_user(self, api_client, user_data):
-        """일반 유저 퀴즈 생성 테스트"""
+        """퀴즈 생성 permission 테스트"""
 
         # given : 일반 유저 토큰 세팅
         user = User.objects.get(username='user1')
@@ -41,6 +43,9 @@ class TestCreateUpdateQuiz:
         assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["detail"] == "권한이 없습니다."
 
+
+@pytest.mark.django_db
+class TestUpdateQuiz:
     def test_update_quiz_question_count(self, api_client, staff_user_data, quiz_data, quiz_question_data):
         """퀴즈 문제 개수 설정 (0 -> 2)"""
 
@@ -92,7 +97,27 @@ class TestCreateUpdateQuiz:
 
 
 @pytest.mark.django_db
-class TestQuizList:
+class TestDeleteQuiz:
+    def test_delete_quiz(self, api_client, staff_user_data, quiz_data):
+        """퀴즈 삭제 테스트"""
+
+        # given : 관리자 토큰 세팅
+        staff = User.objects.get(username='staff1')
+        api_client.force_authenticate(user=staff)
+
+        # when : 퀴즈 삭제 API 호출
+        quiz_id = quiz_data['quiz1'].id
+        url = reverse('quiz-staff-detail', kwargs={'pk': quiz_id})
+        response = api_client.delete(url)
+
+        # then : 퀴즈 삭제 확인
+        deleted_quiz = Quiz.objects.get(id=quiz_id)
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert deleted_quiz.is_deleted is True
+        assert deleted_quiz.deleted_at is not None
+
+@pytest.mark.django_db
+class TestReadQuiz:
 
     def test_quiz_list_pagination(self, api_client, staff_user_data, quiz_pagination_data):
         """퀴즈 목록 페이지네이션 테스트"""
@@ -180,6 +205,49 @@ class TestQuizList:
         response_data = response.json()
         assert response.status_code == status.HTTP_200_OK
         assert response_data['has_attempted'] == True
+
+    def test_exclude_deleted_quiz_from_list(self, api_client, staff_user_data, quiz_data):
+        """퀴즈 목록 조회 시 삭제된 퀴즈 제외 테스트"""
+
+        # given : 관리자 토큰 세팅
+        staff = User.objects.get(username='staff1')
+        api_client.force_authenticate(user=staff)
+
+        # given : 퀴즈 삭제
+        quiz_id = quiz_data['quiz1'].id
+        quiz = Quiz.objects.get(id=quiz_id)
+        quiz.is_deleted = True
+        quiz.deleted_at = datetime.now()
+        quiz.save()
+
+        # when : 퀴즈 목록 API 호출
+        url = reverse('quiz-list')
+        response = api_client.get(url)
+
+        # then : 퀴즈 목록에서 삭제된 퀴즈 제외 확인
+        result_quiz_ids = [quiz['id'] for quiz in response.json()['results']]
+        assert response.status_code == status.HTTP_200_OK
+        assert quiz_id not in result_quiz_ids
+
+    def test_deleted_quiz_detail(self, api_client, staff_user_data, quiz_data):
+        """삭제된 퀴즈 상세 조회 테스트"""
+
+        # given : 관리자 로그인
+        staff = User.objects.get(username='staff1')
+        api_client.force_authenticate(user=staff)
+
+        # given : 퀴즈 soft delete 처리
+        quiz = quiz_data['quiz1']
+        quiz.is_deleted = True
+        quiz.deleted_at = datetime.now()
+        quiz.save()
+
+        # when : 삭제된 퀴즈 상세 조회
+        url = reverse('quiz-detail', kwargs={'pk': quiz.id})
+        response = api_client.get(url)
+
+        # then : 삭제된 퀴즈 상세 조회 불가
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
 
 @pytest.mark.django_db

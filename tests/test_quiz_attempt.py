@@ -123,7 +123,7 @@ class TestQuizAttemptChoice:
 
         # when: 응시한 퀴즈 문제 선택지 저장 API 호출
         url = reverse('attempt-choice')
-        response = api_client.post(url, data=request_data, format='json')
+        response = api_client.post(url, data=request_data)
 
         # then : 선택지 저장 성공 확인
         stored = QuizAttemptChoice.objects.filter(attempt_question=quiz_attempt_question_data["attempt1_question3"])
@@ -157,7 +157,7 @@ class TestQuizAttemptChoice:
 
         # when: 응시한 퀴즈 문제 선택지 저장 API 호출
         url = reverse('attempt-choice')
-        response = api_client.put(url, data=request_data, format='json')
+        response = api_client.put(url, data=request_data)
 
         # then : 퀴즈 응시 중 유저가 선택한 선지 표시
         stored_choice = QuizAttemptChoice.objects.get(
@@ -190,7 +190,7 @@ class TestQuizAttemptChoice:
 
         # when: 응시한 퀴즈 문제 선택지 저장 API 호출
         url = reverse('attempt-choice')
-        response = api_client.put(url, data=request_data, format='json')
+        response = api_client.put(url, data=request_data)
 
         # then : 퀴즈 응시 중 선택한 정답 변경
         # 수정한 정답

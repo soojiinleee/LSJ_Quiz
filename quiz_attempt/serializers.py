@@ -22,6 +22,16 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
         quiz_id = attrs.get('quiz_id')
         user = self.context['request'].user
 
+        # 1. 퀴즈 확인
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+        except Quiz.DoesNotExist:
+            raise serializers.ValidationError("존재하지 않는 퀴즈입니다.")
+
+        if quiz.is_deleted:
+            raise serializers.ValidationError("삭제된 퀴즈에는 응시할 수 없습니다.")
+
+        # 2. 퀴즈 응시 여부 확인
         if QuizAttempt.objects.filter(user=user, quiz_id=quiz_id).exists():
             raise serializers.ValidationError("이미 응시한 퀴즈입니다.")
 

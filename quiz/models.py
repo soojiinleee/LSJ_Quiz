@@ -9,6 +9,7 @@ class Quiz(TimeStampedMixin):
     question_count = models.PositiveIntegerField(default=0, verbose_name="퀴즈에 노출될 문제 개수")
     is_random_question = models.BooleanField(default=False, verbose_name="문제 랜덤 배치")
     is_random_choice = models.BooleanField(default=False, verbose_name="선택지 랜덤 배치")
+    is_deleted = models.BooleanField(default=False, verbose_name='삭제 여부')
     creator = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -27,6 +28,7 @@ class Quiz(TimeStampedMixin):
         related_name='attempted_quiz',
         verbose_name="퀴즈 응시한 유저"
     )
+    deleted_at = models.DateTimeField(null=True, blank=True, verbose_name='삭제 시점')
 
     def __str__(self):
         return self.title

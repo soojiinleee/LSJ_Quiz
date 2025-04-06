@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 
 from rest_framework import viewsets, generics, mixins, permissions
 from rest_framework.response import Response
@@ -28,11 +29,13 @@ class QuizStaffViewSet(mixins.CreateModelMixin,
     permission_classes = [IsStaffUser]
 
     def get_serializer_class(self):
-        if self.action in ('create', 'update', 'partial_update'):
+        if self.action not in ('destroy',):
             return QuizCreateUpdateSerializer
-        if self.action == 'destroy':
-            # TODO 퀴즈 삭제 -> quiz_question 내용도 삭제 처리
-            return
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.deleted_at = datetime.now()
+        instance.save()
 
 
 class QuizViewSet(mixins.ListModelMixin,
@@ -44,7 +47,7 @@ class QuizViewSet(mixins.ListModelMixin,
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        query_set = Quiz.objects.prefetch_related('related_questions').all().order_by('-created_at')
+        query_set = Quiz.objects.filter(is_deleted=False).order_by('-created_at')
         return query_set
 
     def get_serializer_class(self):
