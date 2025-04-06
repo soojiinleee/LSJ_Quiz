@@ -1,6 +1,6 @@
 import random
-from datetime import datetime
 
+from django.utils import timezone
 from rest_framework import viewsets, generics, mixins, permissions
 from rest_framework.response import Response
 from rest_framework import status
@@ -37,7 +37,7 @@ class QuizStaffViewSet(
 
     def perform_destroy(self, instance):
         instance.is_deleted = True
-        instance.deleted_at = datetime.now()
+        instance.deleted_at = timezone.now()
         instance.save()
 
 

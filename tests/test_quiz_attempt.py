@@ -117,6 +117,7 @@ class TestAttemptQuestionWithChoice:
 
         # then : 선택지 확인
         assert len(response_data["choices"]) == expected_choices.count()
+        assert response_data["is_ordered"] is False
         assert actual_choice_texts == expected_choice_texts
 
     def test_attempt_question_detail_with_ordered_choice(
@@ -151,6 +152,7 @@ class TestAttemptQuestionWithChoice:
         actual_order = [choice["id"] for choice in response_data["choices"]]
 
         assert response.status_code == status.HTTP_200_OK
+        assert response_data["is_ordered"] is True
         assert actual_order == expected_order
 
 

@@ -13,8 +13,15 @@ from .serializers import (
     QuizSubmissionSerializer,
 )
 from .models import QuizAttempt
+from .schemas import (
+    ATTEMPT_QUIZ_CREATE_SCHEMA,
+    ATTEMPT_QUESTION_SCHEMA,
+    ATTEMPT_CHOICE_SCHEMA_View,
+    QUIZ_SUBMISSION_SCHEMA_View,
+)
 
 
+@ATTEMPT_QUIZ_CREATE_SCHEMA
 class QuizAttemptAPIView(generics.CreateAPIView):
     """퀴즈 응시 및 출제 문제 순서 저장"""
 
@@ -22,6 +29,7 @@ class QuizAttemptAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
+@ATTEMPT_QUESTION_SCHEMA
 class QuizAttemptQuestionDetailAPIView(generics.RetrieveAPIView):
     """퀴즈 출제 문제 상세 조회"""
 
@@ -41,6 +49,7 @@ class QuizAttemptQuestionDetailAPIView(generics.RetrieveAPIView):
         return quiz_question.question
 
 
+@ATTEMPT_CHOICE_SCHEMA_View
 class QuizAttemptChoiceAPIView(generics.CreateAPIView, generics.UpdateAPIView):
     """풀이 문제 선택지 순서(POST) & 고른 선택지 저장(PUT)"""
 
@@ -82,6 +91,7 @@ class QuizAttemptChoiceAPIView(generics.CreateAPIView, generics.UpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+@QUIZ_SUBMISSION_SCHEMA_View
 class QuizSubmissionAPIView(generics.UpdateAPIView):
     """퀴즈 제출"""
 

@@ -1,9 +1,10 @@
 import pytest
-from datetime import datetime
 from urllib.parse import urlparse
+
 from rest_framework import status
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
 from quiz.models import Quiz
 
 
@@ -237,7 +238,7 @@ class TestReadQuiz:
         quiz_id = quiz_data["quiz1"].id
         quiz = Quiz.objects.get(id=quiz_id)
         quiz.is_deleted = True
-        quiz.deleted_at = datetime.now()
+        quiz.deleted_at = timezone.now()
         quiz.save()
 
         # when : 퀴즈 목록 API 호출
@@ -259,7 +260,7 @@ class TestReadQuiz:
         # given : 퀴즈 soft delete 처리
         quiz = quiz_data["quiz1"]
         quiz.is_deleted = True
-        quiz.deleted_at = datetime.now()
+        quiz.deleted_at = timezone.now()
         quiz.save()
 
         # when : 삭제된 퀴즈 상세 조회

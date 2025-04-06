@@ -1,6 +1,6 @@
 import pytest
 
-from datetime import datetime
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from .factories import (
@@ -46,14 +46,14 @@ def user_data():
 @pytest.fixture
 def quiz_data(db, staff_user_data):
     quiz1 = QuizFactory.create(
-        creator=staff_user_data["staff1"],
-        title="퀴즈1",
+        creator=staff_user_data["staff1"], title="퀴즈1", deleted_at=None
     )
     quiz2 = QuizFactory.create(
         creator=staff_user_data["staff1"],
         title="퀴즈2",
         is_random_question=True,
         is_random_choice=True,
+        deleted_at=None,
     )
     quiz3 = QuizFactory.create(
         creator=staff_user_data["staff1"],
@@ -61,6 +61,7 @@ def quiz_data(db, staff_user_data):
         question_count=3,
         is_random_question=True,
         is_random_choice=True,
+        deleted_at=None,
     )
     return {"quiz1": quiz1, "quiz2": quiz2, "quiz3": quiz3}
 
@@ -171,7 +172,7 @@ def quiz_attempt_data(db, user_data, quiz_data):
         user=user_data["user2"],
         quiz=quiz_data["quiz3"],
         attempt_question_count=quiz_data["quiz3"].question_count,
-        started_at=datetime.now(),
+        started_at=timezone.now(),
         submitted_at=None,
     )
 

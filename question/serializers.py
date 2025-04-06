@@ -2,7 +2,7 @@ import random
 
 from rest_framework import serializers
 
-from quiz_attempt.models import QuizAttempt
+from quiz_attempt.models import QuizAttempt, QuizAttemptChoice
 from .models import Question, Choice
 
 
@@ -42,12 +42,13 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
 
 class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
     choices = serializers.SerializerMethodField()
+    is_ordered = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
-        fields = QuestionSimpleSerializer.Meta.fields + ["choices"]
+        fields = QuestionSimpleSerializer.Meta.fields + ["choices", "is_ordered"]
 
-    def get_choices(self, obj: Question):
+    def _find_attempt_choices(self) -> (QuizAttemptChoice, QuizAttempt):
         user = self.context["request"].user
         quiz_id = self.context["request"].query_params.get("quiz_id")
         question_id = self.context["view"].kwargs.get("question_id")
@@ -55,6 +56,11 @@ class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
         quiz_attempt = QuizAttempt.objects.get(quiz_id=quiz_id, user=user)
         attempt_question = quiz_attempt.questions.get(question_id=question_id)
         attempt_choices = attempt_question.choices.all()
+
+        return attempt_choices, quiz_attempt
+
+    def get_choices(self, obj: Question):
+        attempt_choices, quiz_attempt = self._find_attempt_choices()
 
         # 이전에 문제 조회하여 저장된 선택지 순서가 있는 경우
         if attempt_choices:
@@ -72,3 +78,7 @@ class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
             random.shuffle(choices)
 
         return ChoiceSerializer(choices, many=True).data
+
+    def get_is_ordered(self, obj: Question):
+        attempt_choices, _ = self._find_attempt_choices()
+        return attempt_choices.exists()
