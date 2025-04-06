@@ -5,7 +5,6 @@ from rest_framework import status
 from question.serializers import QuestionDetailWithChoicesSerializer
 from .serializers import QuizSubmissionSerializer
 
-
 ATTEMPT_QUIZ_CREATE_SCHEMA = extend_schema(
     tags=['퀴즈 응시'],
     summary='퀴즈 응시',
@@ -29,15 +28,15 @@ ATTEMPT_QUESTION_SCHEMA = extend_schema(
             description='문제 id',
             type=OpenApiTypes.INT,
             location=OpenApiParameter.PATH,
-            required=True
+            required=True,
         ),
         OpenApiParameter(
             name='quiz_id',
             description='퀴즈 id',
             type=OpenApiTypes.INT,
             location=OpenApiParameter.QUERY,
-            required=True
-        )
+            required=True,
+        ),
     ],
     responses={
         status.HTTP_200_OK: OpenApiResponse(
@@ -67,21 +66,21 @@ QUIZ_SUBMISSION_SCHEMA = extend_schema(
     summary='퀴즈 제출',
     description="제출 시 맞춘 문제 개수 반환",
     parameters=[
-            OpenApiParameter(
-                name='quiz_id',
-                description='퀴즈 id',
-                type=OpenApiTypes.INT,
-                location=OpenApiParameter.QUERY,
-                required=True
-            )
-        ],
+        OpenApiParameter(
+            name='quiz_id',
+            description='퀴즈 id',
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=True,
+        )
+    ],
     responses={
         status.HTTP_200_OK: OpenApiResponse(
             response=QuizSubmissionSerializer(),
             description="퀴즈 제출 결과 반환",
         )
     },
-    )
+)
 QUIZ_SUBMISSION_SCHEMA_View = extend_schema_view(
     put=QUIZ_SUBMISSION_SCHEMA, patch=extend_schema(exclude=True)
 )

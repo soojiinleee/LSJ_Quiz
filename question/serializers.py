@@ -1,6 +1,7 @@
 import random
 
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from quiz_attempt.models import QuizAttempt, QuizAttemptChoice
 from .models import Question, Choice
@@ -59,6 +60,7 @@ class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
 
         return attempt_choices, quiz_attempt
 
+    @extend_schema_field(ChoiceSerializer(many=True))
     def get_choices(self, obj: Question):
         attempt_choices, quiz_attempt = self._find_attempt_choices()
 
@@ -79,6 +81,7 @@ class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
 
         return ChoiceSerializer(choices, many=True).data
 
+    @extend_schema_field(serializers.BooleanField())
     def get_is_ordered(self, obj: Question):
         attempt_choices, _ = self._find_attempt_choices()
         return attempt_choices.exists()
