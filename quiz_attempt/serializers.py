@@ -58,10 +58,15 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
         )
 
         # 출제된 문제 저장 (순서 보존)
+        attempt_questions = []
         for idx, question in enumerate(questions):
-            QuizAttemptQuestion.objects.create(
-                attempt=attempt, question=question, order_index=idx + 1
+            attempt_questions.append(
+                QuizAttemptQuestion(
+                    attempt=attempt, question=question, order_index=idx + 1
+                )
             )
+
+        QuizAttemptQuestion.objects.bulk_create(attempt_questions)
 
         return attempt
 

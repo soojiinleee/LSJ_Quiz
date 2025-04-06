@@ -50,8 +50,8 @@ class QuizViewSet(
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        query_set = Quiz.objects.filter(is_deleted=False).order_by("-created_at")
-        return query_set
+        queryset = Quiz.objects.filter(is_deleted=False).order_by("-created_at")
+        return queryset
 
     def get_serializer_class(self):
         user = self.request.user
