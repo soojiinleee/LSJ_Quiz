@@ -1,4 +1,10 @@
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse
+from rest_framework import status
+from question.serializers import QuestionDetailWithChoicesSerializer
+from .serializers import QuizSubmissionSerializer
+
 
 ATTEMPT_QUIZ_CREATE_SCHEMA = extend_schema(
     tags=['퀴즈 응시'],
@@ -17,6 +23,28 @@ ATTEMPT_QUESTION_SCHEMA = extend_schema(
             - 선택지 순서 저장 O -> 랜덤 정렬 (is_ordered=false)
             - 선택지 순서 저장 X -> 저장된 순서 정렬 (is_ordered=true)
     """,
+    parameters=[
+        OpenApiParameter(
+            name='question_id',
+            description='문제 id',
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            required=True
+        ),
+        OpenApiParameter(
+            name='quiz_id',
+            description='퀴즈 id',
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=True
+        )
+    ],
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            response=QuestionDetailWithChoicesSerializer(),
+            description="선택지 포함한 문제 상세 내용 반환",
+        )
+    },
 )
 SAVE_CHOICE_ORDER_SCHEMA = extend_schema(
     tags=['퀴즈 응시'],
@@ -38,7 +66,22 @@ QUIZ_SUBMISSION_SCHEMA = extend_schema(
     tags=['퀴즈 응시'],
     summary='퀴즈 제출',
     description="제출 시 맞춘 문제 개수 반환",
-)
+    parameters=[
+            OpenApiParameter(
+                name='quiz_id',
+                description='퀴즈 id',
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                required=True
+            )
+        ],
+    responses={
+        status.HTTP_200_OK: OpenApiResponse(
+            response=QuizSubmissionSerializer(),
+            description="퀴즈 제출 결과 반환",
+        )
+    },
+    )
 QUIZ_SUBMISSION_SCHEMA_View = extend_schema_view(
     put=QUIZ_SUBMISSION_SCHEMA, patch=extend_schema(exclude=True)
 )

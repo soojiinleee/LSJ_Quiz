@@ -1,12 +1,10 @@
-from tabnanny import verbose
-
 from rest_framework import serializers
 
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from quiz.models import Quiz
 from question.models import Question, Choice
-from .models import QuizAttempt, QuizAttemptQuestion, QuizAttemptChoice
+from .models import QuizAttempt, QuizAttemptQuestion, QuizAttemptChoice, generate_quiz_attempt_code
 
 
 class QuizAttemptCreateSerializer(serializers.ModelSerializer):
@@ -56,7 +54,7 @@ class QuizAttemptCreateSerializer(serializers.ModelSerializer):
 
         # 응시 객체 생성
         attempt = QuizAttempt.objects.create(
-            quiz=quiz, user=user, attempt_question_count=quiz.question_count
+            quiz=quiz, user=user, attempt_code=generate_quiz_attempt_code(),attempt_question_count=quiz.question_count
         )
 
         # 출제된 문제 저장 (순서 보존)

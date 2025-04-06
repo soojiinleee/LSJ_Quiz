@@ -19,7 +19,6 @@ class QuizAttempt(models.Model):
         User, on_delete=models.CASCADE, related_name="quiz_attempts"
     )
     attempt_code = models.CharField(
-        default=generate_quiz_attempt_code(),
         max_length=7,
         unique=True,
         verbose_name="퀴즈 응시 코드",
