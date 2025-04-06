@@ -4,7 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from core.models import TimeStampedMixin
-from question.models import Question
+from question.models import Question, Choice
 from quiz.models import Quiz
 
 
@@ -73,3 +73,28 @@ class QuizAttemptQuestion(TimeStampedMixin):
         db_table = 'quiz_attempt_question'
         verbose_name = '퀴즈 출제 문제'
         verbose_name_plural = '퀴즈 출제 문제'
+
+
+class QuizAttemptChoice(TimeStampedMixin):
+    attempt_question = models.ForeignKey(
+        'quiz_attempt.QuizAttemptQuestion',
+        on_delete=models.CASCADE,
+        related_name='choices',
+        verbose_name='응시 문제'
+    )
+    choice = models.ForeignKey(
+        Choice,
+        on_delete=models.CASCADE,
+        verbose_name='선택지'
+    )
+    order_index = models.PositiveIntegerField(verbose_name='선택지 순서')
+    is_selected = models.BooleanField(default=False, verbose_name='유저 선택 여부')
+
+    def __str__(self):
+        return f"AttemptQuestion {self.attempt_question_id} - Choice {self.choice_id}"
+
+    class Meta:
+        db_table = 'quiz_attempt_choice'
+        verbose_name = '퀴즈 응시 선택지'
+        verbose_name_plural = '퀴즈 응시 선택지'
+        unique_together = ('attempt_question', 'choice')

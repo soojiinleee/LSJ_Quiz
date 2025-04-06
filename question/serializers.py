@@ -1,3 +1,5 @@
+import random
+
 from rest_framework import serializers
 from .models import Question, Choice
 
@@ -6,6 +8,9 @@ class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
         fields = ['id', 'text', 'is_correct']
+        extra_kwargs = {
+            'is_correct': {'write_only': True}
+        }
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -33,3 +38,21 @@ class QuestionSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = ['id', 'text']
+
+
+class QuestionDetailWithChoicesSerializer(QuestionSimpleSerializer):
+    choices = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Question
+        fields = QuestionSimpleSerializer.Meta.fields + ['choices']
+
+    def get_choices(self, obj: Question):
+        choices = obj.choice.all()
+        is_random_choice = self.context.get('quiz_attempt').quiz.is_random_choice
+
+        if is_random_choice:
+            choices = list(choices)
+            random.shuffle(choices)
+
+        return ChoiceSerializer(choices, many=True).data

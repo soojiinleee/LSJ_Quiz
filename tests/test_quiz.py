@@ -92,32 +92,17 @@ class TestCreateUpdateQuiz:
 
 
 @pytest.mark.django_db
-class TestQuizStaff:
-
-    def test_quiz_list_by_staff(self, api_client, staff_user_data, quiz_pagination_data):
-        """관리자 - 퀴즈 목록 조회 테스트"""
-
-        # given : 관리자 토큰 세팅
-        staff = User.objects.get(username='staff1')
-        api_client.force_authenticate(user=staff)
-
-        # when : 퀴즈-문제 연결 API 호출
-        url = reverse('quiz-staff-list')
-        response = api_client.get(url)
-
-        # then : 퀴즈 전체 목록 조회
-        assert response.status_code == status.HTTP_200_OK
-        assert response.json()['count'] == len(quiz_pagination_data)
+class TestQuizList:
 
     def test_quiz_list_pagination(self, api_client, staff_user_data, quiz_pagination_data):
-        """관리자 - 퀴즈 목록 페이지네이션 테스트"""
+        """퀴즈 목록 페이지네이션 테스트"""
 
         # given : 관리자 토큰 세팅
         staff = User.objects.get(username='staff1')
         api_client.force_authenticate(user=staff)
 
-        # when : 퀴즈-문제 연결 API 호출
-        url = reverse('quiz-staff-list')
+        # when : 특정 페이지의 퀴즈 목록 API 호출
+        url = reverse('quiz-list')
         response = api_client.get(url, data={'page':3})
 
         # then : 이전 페이지, 다음 페이지 확인
@@ -131,6 +116,70 @@ class TestQuizStaff:
         assert response.json()['count'] == len(quiz_pagination_data)
         assert next_page == "page=4"
         assert previous_page == "page=2"
+
+    def test_quiz_list_by_staff(self, api_client, staff_user_data, quiz_pagination_data):
+        """관리자 : 퀴즈 목록 조회 테스트"""
+
+        # given : 관리자 토큰 세팅
+        staff = User.objects.get(username='staff1')
+        api_client.force_authenticate(user=staff)
+
+        # when : 퀴즈 목록 API 호출
+        url = reverse('quiz-list')
+        response = api_client.get(url)
+
+        # then : 퀴즈 전체 목록 조회
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()['count'] == len(quiz_pagination_data)
+
+    def test_quiz_list_by_user(self, api_client, user_data, quiz_data, quiz_attempt_data):
+        """일반 사용자 : 퀴즈 목록 조회 테스트"""
+
+        # given : 일반 사용자 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # when : 퀴즈 목록 API 호출
+        url = reverse('quiz-list')
+        response = api_client.get(url)
+
+        # then : 퀴즈 응시 이력 필드 포함
+        response_data = response.json()['results']
+        assert response.status_code == status.HTTP_200_OK
+        assert 'has_attempted' in response_data[0]
+
+    def test_quiz_detail_by_staff(self, api_client, staff_user_data, quiz_data):
+        """관리자 : 퀴즈 상세 조회 테스트"""
+
+        # given : 관리자 토큰 세팅
+        staff = User.objects.get(username='staff1')
+        api_client.force_authenticate(user=staff)
+
+        # when : 퀴즈 상세 API 호출
+        url = reverse('quiz-detail', args=[quiz_data['quiz3'].id])
+        response = api_client.get(url)
+
+        # then : 퀴즈 상세 조회
+        response_data = response.json()
+        assert response.status_code == status.HTTP_200_OK
+        assert 'is_random_question' in response_data
+        assert 'is_random_choice' in response_data
+
+    def test_quiz_detail_by_user(self, api_client, user_data, quiz_data, quiz_attempt_data):
+        """일반 사용자 : 퀴즈 상세 조회 테스트"""
+
+        # given : 일반 사용자 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # when : 퀴즈 상세 API 호출 (응시한 퀴즈)
+        url = reverse('quiz-detail', args=[quiz_data['quiz3'].id])
+        response = api_client.get(url)
+
+        # then : 퀴즈 응시 이력 필드 포함
+        response_data = response.json()
+        assert response.status_code == status.HTTP_200_OK
+        assert response_data['has_attempted'] == True
 
 
 @pytest.mark.django_db

@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 from question.models import Question, Choice
 from quiz.models import Quiz, QuizQuestion
-from quiz_attempt.models import QuizAttempt, QuizAttemptQuestion
+from quiz_attempt.models import QuizAttempt, QuizAttemptQuestion, QuizAttemptChoice
 
 fake = faker.Faker("ko_KR")
 
@@ -80,3 +80,15 @@ class QuizAttemptQuestionFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = QuizAttemptQuestion
+
+
+class QuizAttemptChoiceFactory(factory.django.DjangoModelFactory):
+    """퀴즈 출제 문제 선택지"""
+
+    attempt_question = factory.SubFactory(QuizAttemptQuestionFactory)
+    choice = factory.SubFactory(ChoiceFactory)
+    order_index = factory.Faker('random_int')
+    is_selected = False
+
+    class Meta:
+        model = QuizAttemptChoice

@@ -4,7 +4,7 @@ from datetime import datetime
 from rest_framework.test import APIClient
 
 from .factories import UserFactory, QuizFactory, QuestionFactory, ChoiceFactory, QuizQuestionFactory, \
-    QuizAttemptFactory, QuizAttemptQuestionFactory
+    QuizAttemptFactory, QuizAttemptQuestionFactory, QuizAttemptChoiceFactory
 
 
 @pytest.fixture
@@ -193,4 +193,23 @@ def quiz_attempt_question_data(db, quiz_attempt_data, question_data):
         "attempt1_question2": attempt1_question2,
         "attempt1_question1": attempt1_question1,
         "attempt1_question3": attempt1_question3,
+    }
+
+@pytest.fixture()
+def quiz_attempt_choice_data(db, quiz_attempt_question_data, choice_data):
+    attempt1_choice1 = QuizAttemptChoiceFactory.create(
+        attempt_question=quiz_attempt_question_data["attempt1_question2"],
+        choice=choice_data["choice5"],
+        order_index=1,
+        is_selected=True,
+    )   # 정답 맞춘 상태
+    attempt1_choice2 = QuizAttemptChoiceFactory.create(
+        attempt_question=quiz_attempt_question_data["attempt1_question2"],
+        choice=choice_data["choice4"],
+        order_index=2,
+    )
+
+    return {
+        "attempt1_choice1": attempt1_choice1,
+        "attempt1_choice2":attempt1_choice2
     }

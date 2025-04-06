@@ -1,15 +1,25 @@
 from rest_framework import serializers
 
 from question.models import Question
+from quiz_attempt.models import QuizAttempt
 from .models import Quiz, QuizQuestion
 
 
-class QuizCreateUpdateSerializer(serializers.ModelSerializer):
+class QuizIdTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'question_count', 'is_random_question', 'is_random_choice']
+        fields = ['id', 'title']
         read_only_fields = ['id']
 
+
+class BaseQuizSerializer(QuizIdTitleSerializer):
+    class Meta(QuizIdTitleSerializer.Meta):
+        fields = QuizIdTitleSerializer.Meta.fields + [
+            'question_count', 'is_random_question', 'is_random_choice'
+        ]
+
+
+class QuizCreateUpdateSerializer(BaseQuizSerializer):
     def validate_question_count(self, value):
         if self.instance:
             related_question_count = self.instance.related_questions.count()
@@ -35,18 +45,23 @@ class QuizCreateUpdateSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
 
-class QuizStaffListSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Quiz
-        fields = ['id', 'title']
+class QuizStaffListSerializer(QuizIdTitleSerializer):
+    pass
 
 
-class QuizStaffDetailSerializer(serializers.ModelSerializer):
+class QuizStaffDetailSerializer(BaseQuizSerializer):
+    pass
 
-    class Meta:
-        model = Quiz
-        fields = ['id', 'title', 'question_cnt', 'is_random_question', 'is_random_choice']
+
+class QuizUserSerializer(QuizIdTitleSerializer):
+    has_attempted = serializers.SerializerMethodField()
+
+    class Meta(QuizIdTitleSerializer.Meta):
+        fields = QuizIdTitleSerializer.Meta.fields + ['has_attempted']
+
+    def get_has_attempted(self, obj):
+        user = self.context['request'].user
+        return QuizAttempt.objects.filter(quiz=obj, user=user).exists()
 
 
 class QuizQuestionLinkSerializer(serializers.Serializer):
