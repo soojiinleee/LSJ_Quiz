@@ -1,3 +1,5 @@
+from random import choice
+
 import pytest
 
 from rest_framework import status
@@ -98,51 +100,110 @@ class TestQuizAttemptQuestion:
         assert actual_choice_texts == expected_choice_texts
 
 
-# TODO 수정 필요
-# @pytest.mark.django_db
-# class TestQuizAttemptChoice:
-#     def test_save_quiz_attempt_choice_order(self, api_client, user_data,
-#                                             quiz_data, question_data, choice_data,
-#                                             quiz_attempt_data, quiz_attempt_question_data,
-#                                             quiz_attempt_choice_data):
-#         """응시한 퀴즈 문제 선택지 배치 저장"""
-#         # given : 일반 유저 토큰 세팅
-#         user = User.objects.get(username='user2')
-#         api_client.force_authenticate(user=user)
-#
-#         # given : request data 세팅
-#         quiz_id = quiz_data['quiz3'].id
-#         question_id = quiz_attempt_question_data['attempt1_question1'].question.id
-#         choices = [
-#             {
-#                 "id": choice_data['choice3'].id,
-#                 "order_index": 1,
-#             },
-#             {
-#                 "id": choice_data['choice1'].id,
-#                 "order_index": 2,
-#             },
-#             {
-#                 "id": choice_data['choice2'].id,
-#                 "order_index": 3,
-#             }
-#         ]
-#         request_data = {
-#             'quiz_id': quiz_id,
-#             'question_id': question_id,
-#             'choices': choices
-#         }
-#
-#         # when: 응시한 퀴즈 문제 선택지 저장 API 호출
-#         url = reverse('attempt-choice')
-#         response = api_client.post(url, data=request_data, format='json')
-#
-#         # then : 선택지 저장 성공 확인
-#         response_data = response.json()
-#         stored = QuizAttemptChoice.objects.filter(attempt_question=quiz_attempt_question_data["attempt1_question1"])
-#         print(stored)
-#
-#         assert response.status_code == status.HTTP_201_CREATED
-#         assert stored.choice_id == choice_data["choice4"].id
-#         assert stored.order_index == 1
-#         assert stored.is_selected is False
+@pytest.mark.django_db
+class TestQuizAttemptChoice:
+    def test_save_quiz_attempt_choice_order(self, api_client, user_data,
+                                            quiz_data, question_data, choice_data,
+                                            quiz_attempt_data, quiz_attempt_question_data,
+                                            quiz_attempt_choice_data):
+        """응시한 퀴즈 문제 선택지 배치 저장"""
+        # given : 일반 유저 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # given : request data 세팅
+        quiz_id = quiz_data['quiz3'].id
+        question_id = quiz_attempt_question_data['attempt1_question3'].question.id
+        choice_ids = [choice_data['choice9'].id,choice_data['choice8'].id, choice_data['choice7'].id, choice_data['choice6'].id]
+        request_data = {
+            'quiz_id': quiz_id,
+            'question_id': question_id,
+            'choice_ids': choice_ids
+        }
+
+        # when: 응시한 퀴즈 문제 선택지 저장 API 호출
+        url = reverse('attempt-choice')
+        response = api_client.post(url, data=request_data, format='json')
+
+        # then : 선택지 저장 성공 확인
+        stored = QuizAttemptChoice.objects.filter(attempt_question=quiz_attempt_question_data["attempt1_question3"])
+
+        assert response.status_code == status.HTTP_201_CREATED
+        assert stored[1].choice_id == choice_data['choice8'].id
+        assert stored[1].choice.text == choice_data['choice8'].text
+        assert stored[1].order_index == 2
+        assert stored[1].is_selected is False
+
+
+    def test_saved_selected_choice(self, api_client, user_data,
+                                            quiz_data, question_data, choice_data,
+                                            quiz_attempt_data, quiz_attempt_question_data,
+                                            quiz_attempt_choice_data):
+        """고른 선택지 저장"""
+
+        # given : 일반 유저 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # given : request data 세팅
+        quiz_id = quiz_data['quiz3'].id
+        question_id = quiz_attempt_question_data['attempt1_question1'].question.id
+        selected_choice_id = choice_data['choice2'].id
+        request_data = {
+            'quiz_id': quiz_id,
+            'question_id': question_id,
+            'selected_choice_id': selected_choice_id
+        }
+
+        # when: 응시한 퀴즈 문제 선택지 저장 API 호출
+        url = reverse('attempt-choice')
+        response = api_client.put(url, data=request_data, format='json')
+
+        # then : 퀴즈 응시 중 유저가 선택한 선지 표시
+        stored_choice = QuizAttemptChoice.objects.get(
+            attempt_question=quiz_attempt_question_data["attempt1_question1"],
+            choice=choice_data['choice2']
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert stored_choice.is_selected is True
+
+    def test_update_selected_choice(self, api_client, user_data,
+                                            quiz_data, question_data, choice_data,
+                                            quiz_attempt_data, quiz_attempt_question_data,
+                                            quiz_attempt_choice_data):
+        """유저가 선택한 정답 수정 테스트"""
+
+        # given : 일반 유저 토큰 세팅
+        user = User.objects.get(username='user2')
+        api_client.force_authenticate(user=user)
+
+        # given : request data 세팅
+        quiz_id = quiz_data['quiz3'].id
+        question_id = quiz_attempt_question_data['attempt1_question2'].question.id
+        selected_choice_id = choice_data['choice4'].id
+        request_data = {
+            'quiz_id': quiz_id,
+            'question_id': question_id,
+            'selected_choice_id': selected_choice_id
+        }
+
+        # when: 응시한 퀴즈 문제 선택지 저장 API 호출
+        url = reverse('attempt-choice')
+        response = api_client.put(url, data=request_data, format='json')
+
+        # then : 퀴즈 응시 중 선택한 정답 변경
+        # 수정한 정답
+        previous_selected_choice = QuizAttemptChoice.objects.get(
+            attempt_question=quiz_attempt_question_data["attempt1_question2"],
+            choice=choice_data['choice4']
+        )
+        # 기존 선택한 정답
+        new_selected_choice = QuizAttemptChoice.objects.get(
+            attempt_question=quiz_attempt_question_data["attempt1_question2"],
+            choice=choice_data['choice5']
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert previous_selected_choice.is_selected is True
+        assert new_selected_choice.is_selected is False

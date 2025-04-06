@@ -197,19 +197,38 @@ def quiz_attempt_question_data(db, quiz_attempt_data, question_data):
 
 @pytest.fixture()
 def quiz_attempt_choice_data(db, quiz_attempt_question_data, choice_data):
+    # 선택지 저장 및 선택지 고른 상태
     attempt1_choice1 = QuizAttemptChoiceFactory.create(
         attempt_question=quiz_attempt_question_data["attempt1_question2"],
         choice=choice_data["choice5"],
         order_index=1,
-        is_selected=True,
-    )   # 정답 맞춘 상태
+        is_selected=True,          # 정답 맞춤
+    )
     attempt1_choice2 = QuizAttemptChoiceFactory.create(
         attempt_question=quiz_attempt_question_data["attempt1_question2"],
         choice=choice_data["choice4"],
         order_index=2,
     )
-
+    # 선택지 저장만 한 상태
+    attempt1_choice3 = QuizAttemptChoiceFactory.create(
+        attempt_question=quiz_attempt_question_data["attempt1_question1"],
+        choice=choice_data["choice3"],
+        order_index=1,
+    )
+    attempt1_choice4 = QuizAttemptChoiceFactory.create(
+        attempt_question=quiz_attempt_question_data["attempt1_question1"],
+        choice=choice_data["choice1"],
+        order_index=2,
+    )
+    attempt1_choice5 = QuizAttemptChoiceFactory.create(
+        attempt_question=quiz_attempt_question_data["attempt1_question1"],
+        choice=choice_data["choice2"],
+        order_index=3,
+    )
     return {
         "attempt1_choice1": attempt1_choice1,
-        "attempt1_choice2":attempt1_choice2
+        "attempt1_choice2":attempt1_choice2,
+        "attempt1_choice3":attempt1_choice3,
+        "attempt1_choice4":attempt1_choice4,
+        "attempt1_choice5":attempt1_choice5,
     }

@@ -52,7 +52,6 @@ class QuizAttempt(models.Model):
 
 
 class QuizAttemptQuestion(TimeStampedMixin):
-    # TODO 퀴즈 응시 답안 저장 여부 고민 필요
     attempt = models.ForeignKey(
         QuizAttempt,
         on_delete=models.CASCADE,
