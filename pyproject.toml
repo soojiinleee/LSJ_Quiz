@@ -14,7 +14,8 @@ dependencies = [
     "shortuuid (>=1.0.13,<2.0.0)",
     "djangorestframework-simplejwt (>=5.5.0,<6.0.0)",
     "pytest-django (>=4.11.0,<5.0.0)",
-    "factory-boy (>=3.3.3,<4.0.0)"
+    "factory-boy (>=3.3.3,<4.0.0)",
+    "drf-yasg (>=1.21.10,<2.0.0)"
 ]
 
 [tool.poetry]
